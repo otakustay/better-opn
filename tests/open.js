@@ -15,11 +15,11 @@ function getOpenTabs(browserName) {
 
 function closeOpenTbas(browserName) {
   if (process.platform !== 'darwin') throw new Error('Only support macOS.');
-  execSync(`bash tests/closeOpenTabs.sh "${browserName}"`);
+  execSync(`bash tests/closeOpenTabs.sh "${browserName}"`, { windowsHide: true });
 }
 
 test('if the same tab is reused in browser', async t => {
-  const browserName = 'Google Chrome';
+  const browserName = process.env.BROWSER || 'Google Chrome';
   if (process.platform === 'darwin') {
     // Close all open tabs
     closeOpenTbas(browserName);
