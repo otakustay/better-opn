@@ -51,6 +51,7 @@
     "@babel/preset-env": "^7.9.0",
     "ava": "^3.6.0",
     "lodash.countby": "^4.6.0",
+    "puppeteer-core": "^2.1.1",
     "xo": "^0.28.3"
   }
 }

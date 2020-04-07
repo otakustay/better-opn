@@ -37,9 +37,9 @@ jobs:
       - name: Build
         run: yarn build
 
-      - name: Setup tmate session
-        if: matrix.os == 'macos-latest'
-        uses: mxschmitt/action-tmate@v2
+      # - name: Setup tmate session
+      #   if: matrix.os == 'macos-latest'
+      #   uses: mxschmitt/action-tmate@v2
 
       - name: Test
         run: yarn test

@@ -1,5 +1,6 @@
 const test = require('ava');
 const countBy = require('lodash.countby');
+const puppeteer = require('puppeteer-core');
 const {execSync} = require('child_process');
 const open = require('../dist'); // Run yarn build prior running the test
 
@@ -15,34 +16,39 @@ function getOpenTabs(browserName) {
 
 function closeOpenTbas(browserName) {
   if (process.platform !== 'darwin') throw new Error('Only support macOS.');
-  execSync(`bash tests/closeOpenTabs.sh "${browserName}"`, { windowsHide: true });
+  execSync(`bash tests/closeOpenTabs.sh "${browserName}"`, {windowsHide: true});
 }
 
-test('if the same tab is reused in browser', async t => {
-  const browserName = process.env.BROWSER || 'Google Chrome';
+test('the same tab is reused in browser', async t => {
+  const browserName = 'Google Chrome';
   if (process.platform === 'darwin') {
     // Close all open tabs
-    closeOpenTbas(browserName);
+    // closeOpenTbas(browserName);
+    const browser = await puppeteer.launch({
+      headless: false,
+      executablePath:
+        `/Applications/${browserName}.app/Contents/MacOS/${browserName}`,
+    });
 
     // Open url with open twice
-    await open(openUrl);
-    await open(openUrl);
+    await open(openUrl, {app: browserName, wait: true});
+    await open(openUrl, {app: browserName, wait: true});
 
     // Get open tabs
     const openTabs = getOpenTabs(browserName);
-    console.log(openTabs);
     const openTabsCounter = countBy(openTabs);
     t.is(openTabsCounter[openUrl], 1);
 
-    // Clean up
-    closeOpenTbas(browserName);
+    // Close all open tabs
+    // closeOpenTbas(browserName);
+    await browser.close();
   } else {
     // Skip for non-macOS environments
     t.pass();
   }
 });
 
-test('open url in browser', async t => {
-  await open(openUrl);
-  t.pass();
-});
+// Test('open url in browser', async t => {
+//   await open(openUrl);
+//   t.pass();
+// });
