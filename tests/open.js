@@ -30,7 +30,13 @@ test.serial('the same tab is reused in browser on macOS', async t => {
       executablePath: chromeExecutablePath,
     });
     const page = await browser.newPage();
-    await page.goto(openUrl);
+
+    try {
+      await page.goto(openUrl);
+      // eslint-disable-next-line no-unused-vars
+    } catch (error) {
+      // Ignore error since localhost:8000 does not exist
+    }
 
     // Open url with open
     await open(openUrl);

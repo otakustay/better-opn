@@ -34,8 +34,14 @@ jobs:
       - name: Install
         run: yarn --no-progress --non-interactive --no-lockfile
 
-      - name: Build
-        run: yarn build
-
-      - name: Test
+      - name: Test on ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        uses: mujo-code/puppeteer-headful@master
+        env:
+          CI: 'true'
+        with:
+          args: yarn test
+      
+      - name: Test on macOS & win32
+        if: matrix.os == 'macos-latest' || matrix.os == 'windows-latest'
         run: yarn test
