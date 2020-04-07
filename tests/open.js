@@ -1,7 +1,6 @@
 const test = require('ava');
 const countBy = require('lodash.countby');
 const puppeteer = require('puppeteer-core');
-const {execSync} = require('child_process');
 const open = require('../src');
 
 const browserName = 'Google Chrome';
