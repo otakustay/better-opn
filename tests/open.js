@@ -9,7 +9,8 @@ let chromeExecutablePath;
 if (process.platform === 'darwin') {
   chromeExecutablePath = `/Applications/${browserName}.app/Contents/MacOS/${browserName}`;
 } else if (process.platform === 'linux') {
-  chromeExecutablePath = 'google-chrome';
+  // https://github.com/mujo-code/puppeteer-headful#usage
+  chromeExecutablePath = process.env.PUPPETEER_EXEC_PATH;
 } else if (process.platform === 'win32') {
   chromeExecutablePath = 'Chrome';
 }
@@ -29,16 +30,9 @@ test.serial('the same tab is reused in browser on macOS', async t => {
       headless: false,
       executablePath: chromeExecutablePath,
     });
-    const page = await browser.newPage();
 
-    try {
-      await page.goto(openUrl);
-      // eslint-disable-next-line no-unused-vars
-    } catch (error) {
-      // Ignore error since localhost:8000 does not exist
-    }
-
-    // Open url with open
+    // Open url with better-opn twice
+    await open(openUrl);
     await open(openUrl);
 
     // Workaround since new pages are not avaliable immediately
