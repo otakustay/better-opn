@@ -1,6 +1,7 @@
 const test = require('ava');
 const countBy = require('lodash.countby');
 const puppeteer = require('puppeteer-core');
+const {execSync} = require('child_process');
 const open = require('../src');
 
 const browserName = 'Google Chrome';
@@ -24,6 +25,14 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+function getOpenTabs(browserName) {
+  if (process.platform !== 'darwin') throw new Error('Only support macOS.');
+  const openTabs = execSync(`bash tests/getOpenTabs.sh "${browserName}"`)
+    .toString('utf-8')
+    .split('\n');
+  return openTabs;
+}
+
 test.serial('the same tab is reused in browser on macOS', async t => {
   if (process.platform === 'darwin') {
     const browser = await puppeteer.launch({
@@ -37,14 +46,16 @@ test.serial('the same tab is reused in browser on macOS', async t => {
 
     // Workaround since new pages are not avaliable immediately
     // https://github.com/puppeteer/puppeteer/issues/1992#issuecomment-444857698
-    await sleep(5000);
+    // await sleep(5000);
 
     // Get open pages/tabs
-    const openPages = (await browser.pages()).map(each => each.url());
-    const openPagesCounter = countBy(openPages);
-
+    // const openPages = (await browser.pages()).map(each => each.url());
+    // const openPagesCounter = countBy(openPages);
+    const openTabs = getOpenTabs(browserName);
+    const openTabsCounter = countBy(openTabs);
+    t.is(openTabsCounter[openUrl], 1);
     // Expect only one page is open
-    t.is(openPagesCounter[openUrl], 1);
+    // t.is(openPagesCounter[openUrl], 1);
 
     // Close browser
     await browser.close();
@@ -58,6 +69,7 @@ test.serial('open url in browser', async t => {
   const browser = await puppeteer.launch({
     headless: false,
     executablePath: chromeExecutablePath,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
   });
 
   await open(openUrl);
@@ -82,6 +94,7 @@ test.serial(
     const browser = await puppeteer.launch({
       headless: false,
       executablePath: chromeExecutablePath,
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
     process.env.BROWSER = 'none';
 
